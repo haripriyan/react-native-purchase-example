@@ -5,7 +5,7 @@
  * @format
  */
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import type {PropsWithChildren} from 'react';
 import {
   SafeAreaView,
@@ -24,6 +24,7 @@ import {
   LearnMoreLinks,
   ReloadInstructions,
 } from 'react-native/Libraries/NewAppScreen';
+import Chargebee, { AuthenticationDetail } from '@chargebee/react-native-chargebee';
 
 type SectionProps = PropsWithChildren<{
   title: string;
@@ -56,11 +57,42 @@ function Section({children, title}: SectionProps): JSX.Element {
 }
 
 function App(): JSX.Element {
-  const isDarkMode = useColorScheme() === 'dark';
 
+  const isDarkMode = useColorScheme() === 'dark';
+  const site = 'site';
+  const apiKey = 'testKey';
+  const iOsSdkKey = 'cb-iOS';
+  const androidSdkKey = 'cb-androod';
+
+  useEffect(() => {
+    configure(site, apiKey, iOsSdkKey, androidSdkKey);
+    console.debug('Configured Chargebee SDK');
+  });
+  
   const backgroundStyle = {
     backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
   };
+
+  async function configure(
+    site: string,
+    apiKey: string,
+    iOsSdkKey: string,
+    androidSdkKey: string
+  ) {
+    try {
+      const configResult: AuthenticationDetail = await Chargebee.configure({
+        site: site,
+        publishableApiKey: apiKey,
+        androidSdkKey: androidSdkKey,
+        iOsSdkKey: iOsSdkKey,
+      });
+      console.log('SDK Configuration complete:', configResult);
+    } catch (error) {
+      console.error('SDK Config failed', error);
+      console.error(Object.keys(error))
+      console.error(Object.values(error))
+    }
+  }
 
   return (
     <SafeAreaView style={backgroundStyle}>
